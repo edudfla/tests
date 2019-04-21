@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr">
+	<head>
+		<meta charset="utf-8">
+        <title>Animated primes calculation</title>
+        <style type="text/css">
+            div#canvas_container {
+                border-style: solid;
+                border-width: 5px;
+                border-color: black;
+                margin: 0;
+                padding: 5px;
+            }
+        </style>
+        <script type="text/javascript">
+            (function() {
+                window.animated_primes_calculation =  {
+                    fill_primes_on_canvas: function() {
+                        var canvas = document.createElement("canvas");
+                        // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/canvas
+                        var canvas_context = canvas.getContext('2d');
+                        canvas_context.alpha = false;
+                        var pixel_size = parseInt(document.getElementById("pixel_size").value);
+                        var width = parseInt(document.getElementById("width").value);
+                        var x_max = width * pixel_size;
+                        canvas.setAttribute("width", x_max);
+                        var height = parseInt(document.getElementById("height").value);
+                        var y_max = height * pixel_size;
+                        canvas.setAttribute("height", y_max);
+                        var max_number = width * height;
+                        var mask = new Array(max_number);
+                        mask.fill(true, 0, max_number);
+                        var prime_number = 2;
+                        var prime_number_stop = Math.ceil(Math.sqrt(max_number) + 1);
+                        var next_position;
+                        mask[0] = false;
+                        mask[1] = false;
+                        while (prime_number < prime_number_stop) {
+                            next_position = 2 * prime_number;
+                            while (next_position < max_number) {
+                                mask[next_position] = false;
+                                next_position += prime_number; 
+                            }
+                            ++ prime_number;
+                            while (prime_number < prime_number_stop && false === mask[prime_number]) {
+                                ++ prime_number;
+                            }
+                        }
+                        canvas_context.filStyle = 'black';
+                        var index = 0;
+                        var primes = '';
+                        var x;
+                        var y = 0;
+                        while (y < y_max) {
+                            x = 0;
+                            while (x < x_max) {
+                                if (true === mask[index]) {
+                                    primes += ', ' + index;
+                                    canvas_context.fillRect(x, y, pixel_size, pixel_size);
+                                }
+                                ++ index;
+                                x += pixel_size;
+                            }
+                            y += pixel_size;
+                        }
+                        console.log(primes);
+                        //canvas.setAttribute("onmousemove", "javascript:window.animated_primes_calculation.on_canvas_mouse_move();")
+                        canvas.onmousemove = window.animated_primes_calculation.on_canvas_mouse_move;
+                        var canvas_container = document.getElementById("canvas_container");
+                        canvas_container.innerHTML = '';
+                        canvas_container.appendChild(canvas);
+                    },
+                    on_canvas_mouse_move: function(e) {
+                        console.log(JSON.stringify(e));
+                    },
+                }
+            })();
+        </script>
+	</head>
+    <body>
+        <label for="width" accesskey="W">canvas Width<input id="width" type="number" min="10" max="3000" value=300></label>
+        <label for="height" accesskey="H">canvas Height<input id="height" type="number" min="10" max="3000" value=300></label>
+        <label for="pixel_size" accesskey="P">Pixel size<input id="pixel_size" type="number" min="1" max="10" value=3></label>
+        <button id="fill_primes_on_canvas" accesskey="F" onclick="javascript:window.animated_primes_calculation.fill_primes_on_canvas();">Fill primes on canvas()</button>
+        <div id="canvas_container"></div>
+	</body>
+<hmtl>
